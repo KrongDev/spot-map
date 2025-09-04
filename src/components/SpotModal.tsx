@@ -21,6 +21,7 @@ export function SpotModal({ isOpen, location, onClose, onSubmit }: SpotModalProp
   const [image, setImage] = useState<string | null>(null);
   const [rating, setRating] = useState(0);
   const [category, setCategory] = useState('맛집');
+  const [noiseLevel, setNoiseLevel] = useState<number>(45); // 기본값 45dB
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +81,8 @@ export function SpotModal({ isOpen, location, onClose, onSubmit }: SpotModalProp
         image: image || undefined,
         rating: rating,
         category: category,
+        noiseLevel: noiseLevel,
+        quietRating: Math.max(0, Math.min(100, (80 - noiseLevel) * 2)), // 소음 레벨 기반 조용함 점수
         likes: 0,
         dislikes: 0,
         comments: []
@@ -102,6 +105,7 @@ export function SpotModal({ isOpen, location, onClose, onSubmit }: SpotModalProp
     setImage(null);
     setRating(0);
     setCategory('맛집');
+    setNoiseLevel(45);
     onClose();
   };
 
@@ -129,7 +133,7 @@ export function SpotModal({ isOpen, location, onClose, onSubmit }: SpotModalProp
             <div className="glass-strong border border-white/20 rounded-2xl shadow-2xl w-full mx-auto">
               {/* 헤더 */}
               <div className="flex items-center justify-between p-4 sm:p-6 border-b border-white/10">
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-center text-white flex-1">새 스팟 기록하기</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-center text-white flex-1">새 쉿플레이스 기록하기</h2>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -234,11 +238,47 @@ export function SpotModal({ isOpen, location, onClose, onSubmit }: SpotModalProp
                   </div>
                 </div>
 
+                {/* 소음 레벨 선택 */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-white">소음 레벨</label>
+                    <span className="text-sm text-gray-400">{noiseLevel}dB</span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="range"
+                      min="30"
+                      max="80"
+                      value={noiseLevel}
+                      onChange={(e) => setNoiseLevel(Number(e.target.value))}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #10B981 0%, #F59E0B 50%, #EF4444 100%)`
+                      }}
+                    />
+                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                      <span>🤫 조용함</span>
+                      <span>📢 시끄러움</span>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <span className={`text-sm font-medium ${
+                      noiseLevel < 45 ? 'text-green-400' : 
+                      noiseLevel < 60 ? 'text-yellow-400' : 
+                      noiseLevel < 70 ? 'text-orange-400' : 'text-red-400'
+                    }`}>
+                      {noiseLevel < 45 ? '🤫 매우 조용함' : 
+                       noiseLevel < 60 ? '🔇 조용함' : 
+                       noiseLevel < 70 ? '🔊 시끄러움' : '📢 매우 시끄러움'}
+                    </span>
+                  </div>
+                </div>
+
                 {/* 스팟 제목 입력 */}
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="스팟 제목을 입력하세요..."
+                  placeholder="조용한 장소의 이름을 입력하세요..."
                   maxLength={50}
                   className="w-full p-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-indigo-400 focus:outline-none text-sm sm:text-base"
                 />
@@ -247,7 +287,7 @@ export function SpotModal({ isOpen, location, onClose, onSubmit }: SpotModalProp
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="후기를 남겨주세요..."
+                  placeholder="이곳이 얼마나 조용한지, 어떤 분위기인지 알려주세요..."
                   rows={3}
                   maxLength={500}
                   className="w-full p-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 resize-none focus:border-indigo-400 focus:outline-none text-sm sm:text-base"

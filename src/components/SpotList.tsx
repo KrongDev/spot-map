@@ -36,9 +36,9 @@ export function SpotList({ spots, onDeleteSpot, onSpotClick }: SpotListProps) {
         >
           <MapPin className="w-12 h-12 text-indigo-400" />
         </motion.div>
-        <h3 className="text-lg font-medium text-foreground mb-2">스팟이 없습니다</h3>
+        <h3 className="text-lg font-medium text-foreground mb-2">쉿플레이스가 없습니다</h3>
         <p className="text-sm text-muted-foreground">
-          지도에서 새로운 스팟을 추가해보세요!
+          지도에서 조용한 장소를 추가해보세요!
         </p>
       </motion.div>
     );
@@ -126,7 +126,7 @@ export function SpotList({ spots, onDeleteSpot, onSpotClick }: SpotListProps) {
                       className="glass bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 border-indigo-500/30"
                     >
                       <Star className="w-3 h-3 mr-1" />
-                      내 스팟
+                      내 쉿플레이스
                     </Badge>
                   </div>
                 </div>

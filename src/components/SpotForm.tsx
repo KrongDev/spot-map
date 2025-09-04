@@ -88,7 +88,7 @@ export function SpotForm({ location, onSubmit, onCancel }: SpotFormProps) {
               <Star className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-foreground">새 스팟 등록</h3>
+              <h3 className="text-lg font-semibold text-foreground">새 쉿플레이스 등록</h3>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <MapPin className="w-3 h-3" />
                 <span>{location.lat.toFixed(6)}, {location.lng.toFixed(6)}</span>
@@ -103,12 +103,12 @@ export function SpotForm({ location, onSubmit, onCancel }: SpotFormProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <Label htmlFor="title" className="text-foreground">스팟 이름 *</Label>
+              <Label htmlFor="title" className="text-foreground">장소 이름 *</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="스팟 이름을 입력하세요"
+                placeholder="조용한 장소의 이름을 입력하세요"
                 maxLength={50}
                 className="glass border-white/30 focus:border-indigo-400 bg-white/5 text-foreground placeholder:text-muted-foreground"
               />
@@ -125,7 +125,7 @@ export function SpotForm({ location, onSubmit, onCancel }: SpotFormProps) {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="이 장소에 대한 후기를 작성해주세요"
+                placeholder="이곳이 얼마나 조용한지, 어떤 분위기인지 알려주세요"
                 rows={4}
                 maxLength={500}
                 className="glass border-white/30 focus:border-indigo-400 bg-white/5 text-foreground placeholder:text-muted-foreground resize-none"
@@ -224,7 +224,7 @@ export function SpotForm({ location, onSubmit, onCancel }: SpotFormProps) {
                 ) : (
                   <>
                     <Star className="w-4 h-4 mr-2" />
-                    스팟 등록
+                    쉿플레이스 등록
                   </>
                 )}
               </Button>

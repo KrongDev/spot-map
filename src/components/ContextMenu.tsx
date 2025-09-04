@@ -68,8 +68,8 @@ export function ContextMenu({ isOpen, position, onClose, onAddSpot }: ContextMen
                   <Star className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <div className="font-medium text-sm">새 스팟 기록하기</div>
-                  <div className="text-xs text-muted-foreground">이 위치에 스팟을 추가합니다</div>
+                  <div className="font-medium text-sm">새 쉿플레이스 기록하기</div>
+                  <div className="text-xs text-muted-foreground">조용한 장소를 추가합니다</div>
                 </div>
               </motion.button>
             </div>

@@ -176,17 +176,23 @@ export function Map({ spots, crowdData, onMapClick, onMapRightClick, isAddingSpo
               </div>
               
               <h3 class="font-bold text-lg mb-2" style="font-weight: bold; font-size: 18px; margin-bottom: 8px; color: #E2E8F0;">${spot.title}</h3>
+              ${spot.noiseLevel ? `<div class="flex items-center gap-2 mb-2" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <span style="font-size: 14px;">${spot.noiseLevel < 45 ? '🤫' : spot.noiseLevel < 60 ? '🔇' : spot.noiseLevel < 70 ? '🔊' : '📢'}</span>
+                <span style="font-size: 12px; color: ${spot.noiseLevel < 45 ? '#10B981' : spot.noiseLevel < 60 ? '#F59E0B' : spot.noiseLevel < 70 ? '#F97316' : '#EF4444'};">소음 ${spot.noiseLevel}dB</span>
+              </div>` : ''}
               <p class="text-gray-300 mb-3" style="color: #D1D5DB; margin-bottom: 12px; line-height: 1.4; font-size: 14px;">${spot.description.replace(/\n/g, '<br>')}</p>
               
               <div class="flex items-center justify-between mb-3" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <div class="flex items-center gap-4" style="display: flex; gap: 16px;">
                   <button id="like-btn-${spot.id}" class="flex items-center gap-1 text-green-400 hover:text-green-300 transition-colors" style="display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; color: #34D399;">
-                    <span style="font-size: 18px;">👍</span>
-                    <span id="like-count-${spot.id}" style="font-size: 12px;">${spot.likes || 0}</span>
+                    <span style="font-size: 16px;">🤫</span>
+                    <span style="font-size: 11px; margin-left: 2px;">조용해요</span>
+                    <span id="like-count-${spot.id}" style="font-size: 12px; margin-left: 4px;">${spot.likes || 0}</span>
                   </button>
                   <button id="dislike-btn-${spot.id}" class="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors" style="display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; color: #F87171;">
-                    <span style="font-size: 18px;">👎</span>
-                    <span id="dislike-count-${spot.id}" style="font-size: 12px;">${spot.dislikes || 0}</span>
+                    <span style="font-size: 16px;">📢</span>
+                    <span style="font-size: 11px; margin-left: 2px;">시끄러워요</span>
+                    <span id="dislike-count-${spot.id}" style="font-size: 12px; margin-left: 4px;">${spot.dislikes || 0}</span>
                   </button>
                 </div>
                 <div class="text-xs text-gray-400" style="font-size: 12px; color: #9CA3AF;">${new Date(spot.createdAt).toLocaleDateString('ko-KR')}</div>
@@ -451,15 +457,15 @@ export function Map({ spots, crowdData, onMapClick, onMapRightClick, isAddingSpo
     const visibleRegions = getVisibleRegions(currentZoom);
     
     visibleRegions.forEach(region => {
-      // 혼잡도에 따른 색상 결정
-      const getColor = (density: number) => {
-        if (density > 0.7) return '#EF4444';      // 빨강: 매우 혼잡
-        if (density > 0.5) return '#F97316';      // 주황: 혼잡
-        if (density > 0.3) return '#F59E0B';      // 황색: 보통
-        return '#10B981';                         // 초록: 한산함
+      // 소음 레벨에 따른 색상 결정
+      const getColor = (noiseLevel: number) => {
+        if (noiseLevel >= 70) return '#EF4444';      // 빨강: 매우 시끄러움 (70dB+)
+        if (noiseLevel >= 60) return '#F97316';      // 주황: 시끄러움 (60-70dB)
+        if (noiseLevel >= 45) return '#F59E0B';      // 황색: 보통 (45-60dB)
+        return '#10B981';                            // 초록: 조용함 (30-45dB)
       };
 
-      const color = getColor(region.density);
+      const color = getColor(region.noiseLevel);
       
       // 지역 경계를 사각형으로 표시 (실제로는 GeoJSON 경계 데이터를 사용해야 함)
       const bounds = [
@@ -475,7 +481,7 @@ export function Map({ spots, crowdData, onMapClick, onMapRightClick, isAddingSpo
         opacity: 0.8
       }).addTo(mapInstanceRef.current);
 
-      // 지역명과 혼잡도 표시
+      // 지역명과 소음/혼잡도 표시
       const popup = L.popup({
         closeButton: false,
         autoClose: false,
@@ -491,9 +497,10 @@ export function Map({ spots, crowdData, onMapClick, onMapRightClick, isAddingSpo
           color: #E2E8F0;
           font-family: system-ui, -apple-system, sans-serif;
           text-align: center;
-          min-width: 80px;
+          min-width: 90px;
         ">
           <div style="font-size: 12px; font-weight: 600; margin-bottom: 2px;">${region.name}</div>
+          <div style="font-size: 10px; color: ${color}; margin-bottom: 1px;">소음 ${region.noiseLevel}dB</div>
           <div style="font-size: 10px; color: ${color};">혼잡도 ${(region.density * 100).toFixed(0)}%</div>
         </div>
       `);
@@ -526,14 +533,14 @@ export function Map({ spots, crowdData, onMapClick, onMapRightClick, isAddingSpo
           
           const newPolygons: any[] = [];
           newVisibleRegions.forEach(region => {
-            const getColor = (density: number) => {
-              if (density > 0.7) return '#EF4444';
-              if (density > 0.5) return '#F97316';
-              if (density > 0.3) return '#F59E0B';
-              return '#10B981';
+            const getColor = (noiseLevel: number) => {
+              if (noiseLevel >= 70) return '#EF4444';      // 빨강: 매우 시끄러움 (70dB+)
+              if (noiseLevel >= 60) return '#F97316';      // 주황: 시끄러움 (60-70dB)
+              if (noiseLevel >= 45) return '#F59E0B';      // 황색: 보통 (45-60dB)
+              return '#10B981';                            // 초록: 조용함 (30-45dB)
             };
 
-            const color = getColor(region.density);
+            const color = getColor(region.noiseLevel);
             const bounds = [
               [region.bounds.south, region.bounds.west],
               [region.bounds.north, region.bounds.east]
@@ -562,9 +569,10 @@ export function Map({ spots, crowdData, onMapClick, onMapRightClick, isAddingSpo
                 color: #E2E8F0;
                 font-family: system-ui, -apple-system, sans-serif;
                 text-align: center;
-                min-width: 80px;
+                min-width: 90px;
               ">
                 <div style="font-size: 12px; font-weight: 600; margin-bottom: 2px;">${region.name}</div>
+                <div style="font-size: 10px; color: ${color}; margin-bottom: 1px;">소음 ${region.noiseLevel}dB</div>
                 <div style="font-size: 10px; color: ${color};">혼잡도 ${(region.density * 100).toFixed(0)}%</div>
               </div>
             `);
